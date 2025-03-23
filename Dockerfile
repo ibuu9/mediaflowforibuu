@@ -1,3 +1,4 @@
+# Use a lightweight base image
 FROM python:3.12-slim
 
 # Install WARP
@@ -7,10 +8,10 @@ RUN echo "deb [arch=amd64 signed-by=/usr/share/keyrings/cloudflare-warp-archive-
 RUN apt-get update && apt-get install -y cloudflare-warp
 
 # Set environment variables
-ENV PYTHONDONTWRITEBYTECODE="1"
-ENV PYTHONUNBUFFERED="1"
-ENV PORT="8888"
-ENV PROXY_URL="http://warp:1080"  # Use HTTP proxy instead of SOCKS5
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PORT=8888
+ENV PROXY_URL=http://warp:1080
 
 # Set work directory
 WORKDIR /mediaflow_proxy
