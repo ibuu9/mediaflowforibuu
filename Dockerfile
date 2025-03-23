@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y cloudflare-warp
 ENV PYTHONDONTWRITEBYTECODE="1"
 ENV PYTHONUNBUFFERED="1"
 ENV PORT="8888"
-ENV PROXY_URL="socks5://127.0.0.1:1080"
+ENV PROXY_URL="http://warp:1080"  # Use HTTP proxy instead of SOCKS5
 
 # Set work directory
 WORKDIR /mediaflow_proxy
