@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y cloudflare-warp
 ENV PYTHONDONTWRITEBYTECODE="1"
 ENV PYTHONUNBUFFERED="1"
 ENV PORT="8888"
+ENV PROXY_URL="http://warp:1020"
 
 # Set work directory
 WORKDIR /mediaflow_proxy
@@ -40,5 +41,5 @@ COPY --chown=mediaflow_proxy:mediaflow_proxy . /mediaflow_proxy
 # Expose the port the app runs on
 EXPOSE 8888
 
-# Activate virtual environment and run the application with Gunicorn
-CMD ["poetry", "run", "gunicorn", "mediaflow_proxy.main:app", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8888", "--timeout", "120", "--max-requests", "500", "--max-requests-jitter", "200", "--access-logfile", "-", "--error-logfile", "-", "--log-level", "info"]
+# Start WARP and MediaFlow Proxy
+CMD warp-cli register && warp-cli connect && poetry run gunicorn mediaflow_proxy.main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8888 --timeout 120 --max-requests 500 --max-requests-jitter 200 --access-logfile - --error-logfile - --log-level info
