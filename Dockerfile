@@ -1,5 +1,11 @@
 FROM python:3.12-slim
 
+# Install WARP
+RUN apt-get update && apt-get install -y curl gnupg
+RUN curl https://pkg.cloudflareclient.com/pubkey.gpg | gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
+RUN echo "deb [arch=amd64 signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/cloudflare-client.list
+RUN apt-get update && apt-get install -y cloudflare-warp
+
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE="1"
 ENV PYTHONUNBUFFERED="1"
@@ -34,5 +40,5 @@ COPY --chown=mediaflow_proxy:mediaflow_proxy . /mediaflow_proxy
 # Expose the port the app runs on
 EXPOSE 8888
 
-# Activate virtual environment and run the application with Gunicorn
-CMD ["poetry", "run", "gunicorn", "mediaflow_proxy.main:app", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8888", "--timeout", "120", "--max-requests", "500", "--max-requests-jitter", "200", "--access-logfile", "-", "--error-logfile", "-", "--log-level", "info"]
+# Start WARP and MediaFlow Proxy
+CMD warp-cli register && warp-cli connect && poetry run gunicorn mediaflow_proxy.main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8888 --timeout 120 --max-requests 500 --max-requests-jitter 200 --access-logfile - --error-logfile - --log-level info
